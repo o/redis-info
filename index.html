@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Redis Info</title>
+        <script src="assets/jquery.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="assets/style.css" type="text/css" media="screen, projection" />
+        <script type="text/javascript">
+		$(document).ready(function () {
+		    getData();
+		    setInterval(getData, 5000);
+		});
+
+		function getData() {
+		    var container = $("#container");
+		    $.ajax({
+		        url: "ajax.php",
+		        cache: false,
+		        dataType: "json",
+		        success: function (data) {
+		            container.empty();
+		            for (i in data) {
+		                var response = data[i];
+		                if (response.result == 'success') {
+		                    container.append('<h3>Redis Info</h3>');
+		                    container.append('<div class="success">' + response.server.name + ' <span>Host: </span> ' + response.server.host + ' <span>Port: </span> ' + response.server.port + ' <div class="right">Online</div></div>');
+		                    container.append('<ul><li><span>Version: </span>' + response.statistics.redis_version + ', ' + response.statistics.arch_bits + 'bit<span> Role: </span>' + response.statistics.role + ' <span>VM enabled: </span>' + response.statistics.vm_enabled + ' </li> <li><span>Uptime: </span>' + getHuman(response.statistics.uptime_in_seconds) + ' <span>Used Memory: </span>' + response.statistics.used_memory_human + ' </li> <li><span>Connected clients: </span>' + response.statistics.connected_clients + ' <span>Connected slaves: </span>' + response.statistics.connected_slaves + ' <span>Blocked: </span>' + response.statistics.blocked_clients + ' </li><li><span>Connections received: </span>' + response.statistics.total_connections_received + ' <span>Commands processed: </span>' + response.statistics.total_commands_processed + ' </li><li><span>Pubsub channels: </span> ' + response.statistics.pubsub_channels + ' <span>Pubsub patterns: </span> ' + response.statistics.pubsub_patterns + ' </li></ul>');
+		                    for (j in response.databases) {
+		                        var db = response.databases[j];
+		                        container.append('<ul><li><span>Keys: </span>' + db.totalKey + ' <span>Expired: </span>' + db.willExpire + ' <div class="right">' + j + '</div></li></ul>');
+		                    }
+		                } else {
+		                    container.append('<div class="error">' + response.server.name + ' <span>Host :</span> ' + response.server.host + ' <span>Port :</span> ' + response.server.port + ' <div class="right">Offline</div></div><ul><li>' + response.message + '</li></ul>');
+		                }
+		            }
+		        },
+		        error: function () {
+		            container.empty();
+		            container.append('<h3>Redis Info</h3>');
+		            container.append('<div class="error">Error at fetching request</div>');
+		        }
+		    });
+		}
+
+		function getHuman(ts) {
+		    var t = parseInt(ts);
+		    var days = parseInt(t / 86400);
+		    t = t - (days * 86400);
+		    var hours = parseInt(t / 3600);
+		    t = t - (hours * 3600);
+		    var minutes = parseInt(t / 60);
+		    t = t - (minutes * 60);
+		    var content = '';
+		    if (days) content += days + ' days';
+		    if (hours || days) {
+		        if (content) content += ', ';
+		        content += hours + ' hours';
+		    }
+		    if (content) content += ', ';
+		    content += minutes + ' minutes and ' + t + ' seconds.';
+		    return content;
+		}</script>
+    </head>
+    <body>
+        <div id="container"></div>
+    </body>
+</html>
