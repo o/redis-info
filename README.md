@@ -14,12 +14,12 @@ You can add / edit your Redis servers using config.ini file. An example configur
 
 <pre>
 [Node 76]
-host = http://node-76.redis-server/
+host = node-76.redis-server
 port = 6379
 auth = password
 
 [Master]
-host = http://redis-server-master/
+host = redis-server-master-ip
 port = 6501
 auth = foobared
 </pre>
